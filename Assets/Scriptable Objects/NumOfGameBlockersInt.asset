@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb3670f58e57b1b4a89395af03dbd72f, type: 3}
-  m_Name: 3x3LevelSettings
+  m_Script: {fileID: 11500000, guid: c142cde270d7aa640a6650d8fb0c9a69, type: 3}
+  m_Name: NumOfGameBlockersInt
   m_EditorClassIdentifier: 
-  puzzleSize: 3
-  tileStepDistance: 1
+  value: 0

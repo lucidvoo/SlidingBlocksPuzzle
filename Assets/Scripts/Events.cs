@@ -8,6 +8,9 @@ using System;
 // list of all events, events created here.
 public static class Events
 {
+    // Player input
+    public static readonly Evt<Tile> onTileClicked = new Evt<Tile>();
+
     // Event with parameter example
     //public static readonly Evt<Card> onCardClicked = new Evt<Card>();
 
