@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb3670f58e57b1b4a89395af03dbd72f, type: 3}
   m_Name: 3x3LevelSettings
   m_EditorClassIdentifier: 
-  puzzleSize: 0
+  puzzleSize: 3

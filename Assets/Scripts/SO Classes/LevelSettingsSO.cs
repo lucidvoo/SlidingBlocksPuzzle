@@ -9,6 +9,9 @@ public class LevelSettingsSO : ScriptableObject
 {
     [Tooltip("Number of tiles in each row")]
     [SerializeField] private int puzzleSize;
+    [Tooltip("Distance between centers of two adjacent tiles")]
+    [SerializeField] private float tileStepDistance = 1f;
 
     public int PuzzleSize => puzzleSize;
+    public float TileStepDistance => tileStepDistance;
 }
