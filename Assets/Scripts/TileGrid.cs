@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,10 +10,23 @@ public class TileGrid : MonoBehaviour
     [SerializeField] private LevelSettingsSO levelSettings;
     [Tooltip("Add all tiles in any order")]
     [SerializeField] private Tile[] tileRefs;
+    [SerializeField] private IntVariableSO numOfGameBlockersInt;
 
     private Tile[,] tiles;
     // The tile, that'll be hidden to meke hole in the puzzle
     private Tile holeTile;
+
+
+    private void OnEnable()
+    {
+        Events.onTileClicked.AddListener(OnTileClicker_Handler);
+    }
+
+    private void OnDisable()
+    {
+        Events.onTileClicked.RemoveListener(OnTileClicker_Handler);
+    }
+
 
     private void Awake()
     {
@@ -34,6 +48,7 @@ public class TileGrid : MonoBehaviour
         for (int i = 0; i < tileRefs.Length; i++)
         {
             tiles[tileRefs[i].CorrectTileIndexes.x, tileRefs[i].CorrectTileIndexes.y] = tileRefs[i];
+            tileRefs[i].CurrentTileIndexes = tileRefs[i].CorrectTileIndexes;
         }
     }
 
@@ -44,5 +59,77 @@ public class TileGrid : MonoBehaviour
         holeTile.gameObject.SetActive(false);
     }
 
+    // Invokes every time when tile clicked
+    private void OnTileClicker_Handler (Tile tileClicked)
+    {
+        if (!numOfGameBlockersInt.IsZero())
+        {
+            return;
+        }
+
+        // Check if holeTile is in the same row or column as clicked tile
+        if (tileClicked.CurrentTileIndexes.x != holeTile.CurrentTileIndexes.x && 
+            tileClicked.CurrentTileIndexes.y != holeTile.CurrentTileIndexes.y)
+        {
+            // TODO: tween reaction to wrong click
+            return;
+        }
+
+        MoveTiles(tileClicked);
+    }
+
+    // Successful tile click - one or more tiles will be moved.
+    private void MoveTiles(Tile tileClicked)
+    {
+        Direction dir;
+        int tilesToMoveCount;
+        Vector2Int vectorToHole = holeTile.CurrentTileIndexes - tileClicked.CurrentTileIndexes;
+        // Evaluate direction of moving
+        if (vectorToHole.x != 0) // vertical direction
+        {
+            if (vectorToHole.x > 0)
+            {
+                dir = Direction.DOWN;
+            }
+            else
+            {
+                dir = Direction.UP;
+            }
+            tilesToMoveCount = Mathf.Abs(vectorToHole.x);
+        }
+        else // horizontal direction
+        {
+            if (vectorToHole.y > 0)
+            {
+                dir = Direction.RIGHT;
+            }
+            else
+            {
+                dir = Direction.LEFT;
+            }
+            tilesToMoveCount = Mathf.Abs(vectorToHole.y);
+        }
+
+        // TEST
+        Debug.Log("Have to move " + tilesToMoveCount + " tiles in direction " + dir);
+
+        // what  tiles to move?
+        Stack<Tile> tilesToMove = new Stack<Tile>(levelSettings.PuzzleSize - 1);
+        tilesToMove.Push(tileClicked);
+        for (int i = 0; i < tilesToMoveCount; i++)
+        {
+            //tilesToMove.Push(GetTileInDirectionFromTarget(tilesToMove.Peek(), dir));
+        }
+
+        // TODO: what next?
+    }
+
+    /*private Tile GetTileInDirectionFromTarget(Tile targetTile, Direction dir)
+    {
+        // Get direction one vector
+        Vector2Int dirVector;
+        // TODO: complete
+        // TODO: extension for direction enum
+    }*/
 
 }

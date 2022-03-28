@@ -97,7 +97,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 5b03664c5fc72204c9a5db651ca1f773,
+    type: 2}
   m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
@@ -232,6 +233,8 @@ MonoBehaviour:
   - {fileID: 1357994428}
   - {fileID: 1310703112}
   - {fileID: 1144245810}
+  numOfGameBlockersInt: {fileID: 11400000, guid: 18b388d85a892434cb60acf5925eace3,
+    type: 2}
 --- !u!4 &224780757 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7922871701823257043, guid: 491f3080074981548b17273eb3dbfe39,
@@ -356,6 +359,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: 3x3frame
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 474317eb1436b394abe48d9d37f13d76,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 474317eb1436b394abe48d9d37f13d76, type: 3}
@@ -1394,7 +1402,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!108 &2138677392
 Light:
@@ -1447,7 +1455,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
