@@ -6,10 +6,10 @@ using UnityEngine;
 // scale down and offset mesh UVs to represent proper part of the texture
 public class UVAdjuster : MonoBehaviour
 {
-    [Tooltip("How many rows of tiles the level has")]
-    [SerializeField] private int puzzleSize;
-    [Tooltip("Row and Column of the tile, indexed from 0")]
-    [SerializeField] private Vector2Int tileIndexes;
+    [Tooltip("Level settings scriptable object file")]
+    [SerializeField] private LevelSettingsSO levelSettings;
+    [Tooltip("Tile script reference")]
+    [SerializeField] private Tile tileScriptRef;
     [SerializeField] MeshFilter meshFilter;
 
     private float scaleFactorUVs;
@@ -17,11 +17,11 @@ public class UVAdjuster : MonoBehaviour
 
     private void Awake()
     {
-        scaleFactorUVs = 1 / (puzzleSize + 2f);
+        scaleFactorUVs = 1 / (levelSettings.PuzzleSize + 2f);
 
-        float xOffset = (float)(1 + tileIndexes.y) / (puzzleSize + 2);
-        float yOffset = (float)(puzzleSize - tileIndexes.x) / (puzzleSize + 2);
-        offsetUVs = new Vector2(xOffset, yOffset);
+        float uOffset = (float)(1 + tileScriptRef.CorrectTileIndexes.y) / (levelSettings.PuzzleSize + 2);
+        float vOffset = (float)(levelSettings.PuzzleSize - tileScriptRef.CorrectTileIndexes.x) / (levelSettings.PuzzleSize + 2);
+        offsetUVs = new Vector2(uOffset, vOffset);
 
         AdjustUVs();
     }

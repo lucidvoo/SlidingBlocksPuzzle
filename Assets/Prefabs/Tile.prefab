@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!65 &1017428843754630324
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7003897884040687589}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.98999995, y: 0.98999995, z: 0.17896585}
+  m_Center: {x: 0, y: 0, z: 0.089482926}
 --- !u!1 &7922871701823257045
 GameObject:
   m_ObjectHideFlags: 0
@@ -10,6 +23,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7922871701823257043}
   - component: {fileID: 7922871701823257044}
+  - component: {fileID: -3799237945994360701}
   m_Layer: 0
   m_Name: Tile
   m_TagString: Untagged
@@ -44,9 +58,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa0dd7026d4b18f46a54af19d526c614, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  puzzleSize: 3
-  tileIndexes: {x: 0, y: 0}
+  levelSettings: {fileID: 0}
+  tileScriptRef: {fileID: -3799237945994360701}
   meshFilter: {fileID: 6761824152474467066}
+--- !u!114 &-3799237945994360701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7922871701823257045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d9e462ae08eb104db7736e95523caec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  correctTileIndexes: {x: 0, y: 0}
 --- !u!1001 &7922871700165218996
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -121,6 +148,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe39b2a3c854aa946bab7dad54667c55, type: 3}
+--- !u!1 &7003897884040687589 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fe39b2a3c854aa946bab7dad54667c55,
+    type: 3}
+  m_PrefabInstance: {fileID: 7922871700165218996}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7672172962009232735 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fe39b2a3c854aa946bab7dad54667c55,
