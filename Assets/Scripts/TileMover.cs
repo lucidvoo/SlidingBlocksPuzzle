@@ -9,6 +9,7 @@ public class TileMover: MonoBehaviour
 {
     [SerializeField] private LevelSettingsSO levelSettings;
     [SerializeField] private IntVariableSO numOfGameBlockersInt;
+    [SerializeField] private GameObject vfxForHoleDisappear;
 
     [Space]
     [Tooltip("Overall animation of tiles speed")]
@@ -20,9 +21,22 @@ public class TileMover: MonoBehaviour
     [SerializeField] private int shakeVibrato = 20;
 
     [Header("Hole tile removing params")]
+    [Tooltip("Relative vector to move hole tile")]
+    [SerializeField] private Vector3 extractionVector;
+    [SerializeField] private float extractionDuration = 0.4f;
+    [Tooltip("Relative vector to rotate hole tile")]
+    [SerializeField] private Vector3 rotationVector;
+    [SerializeField] private float rotationDuration = 0.5f;
+    [SerializeField] private float vfxDelay;
 
     private Tile holeTile;
 
+
+    private void Awake()
+    {
+        // DoTween will reuse tweens using it's object pool, be careful with tween references.
+        DOTween.Init(true, true, LogBehaviour.Default);
+    }
 
     // In the beginning of any movement
     private void OnTweenStart()
@@ -39,19 +53,47 @@ public class TileMover: MonoBehaviour
     }
 
 
-    // TODO: tween reaction to wrong click
+    // tween shake reaction to unmovable tile click
     internal void WrongTileClick(Tile tileClicked)
     {
         Tweener tweener = tileClicked.transform.DOShakePosition(shakeDuration * animSpeed, shakeStrength, shakeVibrato);
         tweener.OnStart(OnTweenStart).OnKill(OnTweenComplete);
     }
 
+    // animation and vfx of disappearance of hole tile selected by user 
     internal void RemoveHoleTile(Tile tileToRemove)
     {
         holeTile = tileToRemove;
 
-        // TODO: tweening
+        // Save initial position, rotation and scale of the tile
+        Vector3 initPos = holeTile.transform.position;
+        Quaternion initRot = holeTile.transform.rotation;
+        Vector3 initScale = holeTile.transform.localScale;
 
+        StartCoroutine(HoleDisappearVFX());
+        // Make sequence of tweens
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(holeTile.transform.DOLocalMove(extractionVector, extractionDuration).SetRelative().SetEase(Ease.OutCubic))
+            .Append(holeTile.transform.DOLocalRotate(rotationVector, rotationDuration, RotateMode.FastBeyond360).SetRelative().SetEase(Ease.InBack))
+            .Join(holeTile.transform.DOScale(0f, rotationDuration).SetEase(Ease.InBack))
+            .PrependCallback(OnTweenStart)
+            .AppendCallback(() => RemoveHoleTileFinalizer(initPos, initRot, initScale))
+            .AppendCallback(OnTweenComplete);
+    }
+
+    private IEnumerator HoleDisappearVFX()
+    {
+        yield return new WaitForSeconds(vfxDelay);
+        GameObject effect = Instantiate(vfxForHoleDisappear, holeTile.transform.position, Quaternion.identity);
+        Destroy(effect, 3f);
+    }
+
+    // deactivate hole tile and restore its transform to initial
+    private void RemoveHoleTileFinalizer(Vector3 initPos, Quaternion initRot, Vector3 initScale)
+    {
         holeTile.gameObject.SetActive(false);
+        holeTile.transform.position = initPos;
+        holeTile.transform.rotation = initRot;
+        holeTile.transform.localScale = initScale;
     }
 }

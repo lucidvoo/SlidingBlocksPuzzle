@@ -6,3 +6,5 @@ public enum Direction { UP = 0,
                         DOWN = 2,
                         LEFT = 3,
                         Count = 4}
+
+// TODO: extension method(s) for Direction

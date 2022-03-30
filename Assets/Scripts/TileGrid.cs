@@ -118,7 +118,7 @@ public class TileGrid : MonoBehaviour
         }
 
         // TEST
-        Debug.Log("Have to move " + tilesToMoveCount + " tiles in direction " + dir);
+        //Debug.Log("Have to move " + tilesToMoveCount + " tiles in direction " + dir);
 
         // what  tiles to move?
         Stack<Tile> tilesToMove = new Stack<Tile>(levelSettings.PuzzleSize - 1);

@@ -252,10 +252,17 @@ MonoBehaviour:
   levelSettings: {fileID: 11400000, guid: e96c1c66c991ac84d8c2e6e876076616, type: 2}
   numOfGameBlockersInt: {fileID: 11400000, guid: 18b388d85a892434cb60acf5925eace3,
     type: 2}
+  vfxForHoleDisappear: {fileID: 1268531552312418943, guid: 48b50e6a6807d2846b15af4257db490c,
+    type: 3}
   animSpeed: 1
   shakeDuration: 0.4
-  shakeStrength: {x: 0.04, y: 0.04, z: 0.04}
+  shakeStrength: {x: 0.035, y: 0.035, z: 0.035}
   shakeVibrato: 25
+  extractionVector: {x: 0, y: 0, z: -0.3}
+  extractionDuration: 0.3
+  rotationVector: {x: 0, y: 0, z: 270}
+  rotationDuration: 0.6
+  vfxDelay: 0.7
 --- !u!4 &224780757 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7922871701823257043, guid: 491f3080074981548b17273eb3dbfe39,
