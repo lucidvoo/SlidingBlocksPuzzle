@@ -2,22 +2,46 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// stores one persistent int var for easy sharing data between scripts
+// stores one int var for easy sharing data between scripts
 
 [CreateAssetMenu(fileName = "newInt", menuName = "SO/Int Variable", order = 20)]
 public class IntVariableSO : ScriptableObject
 {
-    public int value = 0;
+    [SerializeField] private bool isPositiveOnly;
+    [SerializeField] private int value;
+    [SerializeField] private int defaultValue = 0;
 
-    public void Increment() => value++;
+    public int Value 
+    { 
+        get => value;
+        set
+        {
+            if (isPositiveOnly && value < 0)
+            {
+                this.value = 0;
+                Debug.Log("Smth tried to assign negative value to Int Var marked as Positive only. Var name: " + name);
+            }
+            else
+            {
+                this.value = value;
+            }
+        }
+    }
 
-    public void Decrement() => value--;
+    private void OnEnable()
+    {
+        if (isPositiveOnly && defaultValue < 0)
+        {
+            Debug.LogError("Positive only Int var can't have a negative default value!");
+        }
+        else
+        {
+            Reset();
+        }
+    }
 
-    public void Reset() => value = 0;
+    public void Reset() => Value = defaultValue;
 
-    public bool IsZero() => value == 0;
+    public bool IsZero() => Value == 0;
 
-    public bool IsPositive() => value >= 0; // ?
-
-    public bool IsNegative() => value < 0;
 }

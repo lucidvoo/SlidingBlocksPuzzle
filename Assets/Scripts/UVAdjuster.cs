@@ -17,13 +17,19 @@ public class UVAdjuster : MonoBehaviour
 
     private void Awake()
     {
+        CalculateScaleAndOffset();
+        AdjustUVs();
+    }
+
+    private void CalculateScaleAndOffset()
+    {
         scaleFactorUVs = 1 / (levelSettings.PuzzleSize + 2f);
 
-        float uOffset = (float)(1 + tileScriptRef.CorrectTileIndexes.y) / (levelSettings.PuzzleSize + 2);
-        float vOffset = (float)(levelSettings.PuzzleSize - tileScriptRef.CorrectTileIndexes.x) / (levelSettings.PuzzleSize + 2);
+        float indRow = tileScriptRef.CorrectTileIndexes.x;
+        float indCol = tileScriptRef.CorrectTileIndexes.y;
+        float uOffset = (1f + indCol) / (levelSettings.PuzzleSize + 2f);
+        float vOffset = (levelSettings.PuzzleSize - indRow) / (levelSettings.PuzzleSize + 2f);
         offsetUVs = new Vector2(uOffset, vOffset);
-
-        AdjustUVs();
     }
 
     private void AdjustUVs()

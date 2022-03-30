@@ -11,6 +11,10 @@ public static class Events
     // Player input
     public static readonly Evt<Tile> onTileClicked = new Evt<Tile>();
 
+    // Animation
+    public static readonly Evt onTilesStartMoving = new Evt();
+    public static readonly Evt onTilesCompleteMoving = new Evt();
+
     // Event with parameter example
     //public static readonly Evt<Card> onCardClicked = new Evt<Card>();
 

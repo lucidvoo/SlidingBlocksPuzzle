@@ -189,6 +189,7 @@ GameObject:
   m_Component:
   - component: {fileID: 156077450}
   - component: {fileID: 156077451}
+  - component: {fileID: 156077452}
   m_Layer: 0
   m_Name: Tile Grid
   m_TagString: Untagged
@@ -235,6 +236,26 @@ MonoBehaviour:
   - {fileID: 1144245810}
   numOfGameBlockersInt: {fileID: 11400000, guid: 18b388d85a892434cb60acf5925eace3,
     type: 2}
+  tileMover: {fileID: 156077452}
+--- !u!114 &156077452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 156077449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 249cc0b3f36716a47afd158008c900c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelSettings: {fileID: 11400000, guid: e96c1c66c991ac84d8c2e6e876076616, type: 2}
+  numOfGameBlockersInt: {fileID: 11400000, guid: 18b388d85a892434cb60acf5925eace3,
+    type: 2}
+  animSpeed: 1
+  shakeDuration: 0.4
+  shakeStrength: {x: 0.04, y: 0.04, z: 0.04}
+  shakeVibrato: 25
 --- !u!4 &224780757 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7922871701823257043, guid: 491f3080074981548b17273eb3dbfe39,

@@ -11,10 +11,12 @@ public class TileGrid : MonoBehaviour
     [Tooltip("Add all tiles in any order")]
     [SerializeField] private Tile[] tileRefs;
     [SerializeField] private IntVariableSO numOfGameBlockersInt;
+    [SerializeField] private TileMover tileMover;
 
     private Tile[,] tiles;
     // The tile, that'll be hidden to meke hole in the puzzle
     private Tile holeTile;
+    private bool isGameBegun = false;
 
 
     private void OnEnable()
@@ -31,11 +33,9 @@ public class TileGrid : MonoBehaviour
     private void Awake()
     {
         InitializeTileArray();
-        // TODO: This must be invoked from another place. After player shows he ready to play
-        MakeHoleTileFromLastTile();
     }
 
-    // fill 2-dim tiles array with refs from editor
+    // fill 2-dim tiles array with refs from editor and mark last tile as Hole tile
     private void InitializeTileArray()
     {
         if (tileRefs.Length != levelSettings.PuzzleSize * levelSettings.PuzzleSize)
@@ -52,12 +52,6 @@ public class TileGrid : MonoBehaviour
         }
     }
 
-    private void MakeHoleTileFromLastTile()
-    {
-        holeTile = tiles[tiles.GetLength(0) - 1, tiles.GetLength(1) - 1];
-        // TODO: This must be tweening
-        holeTile.gameObject.SetActive(false);
-    }
 
     // Invokes every time when tile clicked
     private void OnTileClicker_Handler (Tile tileClicked)
@@ -67,11 +61,24 @@ public class TileGrid : MonoBehaviour
             return;
         }
 
+        // Choosing a tile to remove
+        if (!isGameBegun)
+        {
+            isGameBegun = true;
+
+            holeTile = tileClicked;
+            holeTile.IsHoleTile = true;
+
+            tileMover.RemoveHoleTile(tileClicked);
+
+            return;
+        }
+
         // Check if holeTile is in the same row or column as clicked tile
         if (tileClicked.CurrentTileIndexes.x != holeTile.CurrentTileIndexes.x && 
             tileClicked.CurrentTileIndexes.y != holeTile.CurrentTileIndexes.y)
         {
-            // TODO: tween reaction to wrong click
+            tileMover.WrongTileClick(tileClicked);
             return;
         }
 

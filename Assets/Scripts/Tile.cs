@@ -13,6 +13,8 @@ public class Tile : MonoBehaviour
 
     public Vector2Int CorrectTileIndexes => correctTileIndexes;
 
+    public bool IsHoleTile { get; set; }
+
 
     private void OnMouseDown()
     {
