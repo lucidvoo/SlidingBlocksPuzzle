@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// stores one int var for easy sharing data between scripts
+// stores one int var for easy and decoupled sharing data between scripts
 
 [CreateAssetMenu(fileName = "newInt", menuName = "SO/Int Variable", order = 20)]
 public class IntVariableSO : ScriptableObject

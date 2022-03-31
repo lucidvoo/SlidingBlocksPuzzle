@@ -42,22 +42,23 @@ public class TileMover: MonoBehaviour
     private void OnTweenStart()
     {
         numOfGameBlockersInt.Value++;
-        Events.onTilesStartMoving.Invoke();
+        Events.onTileStartAnyMovement.Invoke();
     }
 
     // In the end of any movement
     private void OnTweenComplete()
     {
         numOfGameBlockersInt.Value--;
-        Events.onTilesCompleteMoving.Invoke();
+        Events.onTileCompleteAnyMovement.Invoke();
     }
 
 
     // tween shake reaction to unmovable tile click
     internal void WrongTileClick(Tile tileClicked)
     {
-        Tweener tweener = tileClicked.transform.DOShakePosition(shakeDuration * animSpeed, shakeStrength, shakeVibrato);
+        Tweener tweener = tileClicked.transform.DOShakePosition(shakeDuration / animSpeed, shakeStrength, shakeVibrato);
         tweener.OnStart(OnTweenStart).OnKill(OnTweenComplete);
+        Events.onWrongTileClicked.Invoke();
     }
 
     // animation and vfx of disappearance of hole tile selected by user 
@@ -73,19 +74,22 @@ public class TileMover: MonoBehaviour
         StartCoroutine(HoleDisappearVFX());
         // Make sequence of tweens
         Sequence sequence = DOTween.Sequence();
-        sequence.Append(holeTile.transform.DOLocalMove(extractionVector, extractionDuration).SetRelative().SetEase(Ease.OutCubic))
-            .Append(holeTile.transform.DOLocalRotate(rotationVector, rotationDuration, RotateMode.FastBeyond360).SetRelative().SetEase(Ease.InBack))
-            .Join(holeTile.transform.DOScale(0f, rotationDuration).SetEase(Ease.InBack))
+        sequence.Append(holeTile.transform.DOLocalMove(extractionVector, extractionDuration / animSpeed).SetRelative().SetEase(Ease.OutCubic))
+            .Append(holeTile.transform.DOLocalRotate(rotationVector, rotationDuration / animSpeed, RotateMode.FastBeyond360).SetRelative().SetEase(Ease.InBack))
+            .Join(holeTile.transform.DOScale(0f, rotationDuration / animSpeed).SetEase(Ease.InBack))
             .PrependCallback(OnTweenStart)
             .AppendCallback(() => RemoveHoleTileFinalizer(initPos, initRot, initScale))
             .AppendCallback(OnTweenComplete);
+
+        Events.onHoleTileRemovingStarted.Invoke();
     }
 
     private IEnumerator HoleDisappearVFX()
     {
-        yield return new WaitForSeconds(vfxDelay);
+        yield return new WaitForSeconds(vfxDelay / animSpeed);
         GameObject effect = Instantiate(vfxForHoleDisappear, holeTile.transform.position, Quaternion.identity);
         Destroy(effect, 3f);
+        Events.onHoleTileVfxAppear.Invoke();
     }
 
     // deactivate hole tile and restore its transform to initial

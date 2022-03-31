@@ -35,7 +35,7 @@ public class TileGrid : MonoBehaviour
         InitializeTileArray();
     }
 
-    // fill 2-dim tiles array with refs from editor and mark last tile as Hole tile
+    // fill 2-dim tiles array with refs from editor
     private void InitializeTileArray()
     {
         if (tileRefs.Length != levelSettings.PuzzleSize * levelSettings.PuzzleSize)
@@ -61,7 +61,7 @@ public class TileGrid : MonoBehaviour
             return;
         }
 
-        // Choosing a tile to remove
+        // Choosing a tile to remove at the very beginning
         if (!isGameBegun)
         {
             isGameBegun = true;
@@ -88,7 +88,11 @@ public class TileGrid : MonoBehaviour
     // Successful tile click - one or more tiles will be moved.
     private void MoveTiles(Tile tileClicked)
     {
-        Direction dir;
+        Direction dir = (holeTile.transform.position - tileClicked.transform.position).ComputeDirectionFromVector3();
+
+        // TEST:
+        Debug.Log("Hole is in direction " + dir + " from clicked tile");
+
         int tilesToMoveCount;
         Vector2Int vectorToHole = holeTile.CurrentTileIndexes - tileClicked.CurrentTileIndexes;
         // Evaluate direction of moving
