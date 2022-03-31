@@ -237,6 +237,9 @@ MonoBehaviour:
   numOfGameBlockersInt: {fileID: 11400000, guid: 18b388d85a892434cb60acf5925eace3,
     type: 2}
   tileMover: {fileID: 156077452}
+  pauseBtwHoleRemoveAndShuffle: 0.6
+  shuffleTime: 4
+  speedUpFactor: 6
 --- !u!114 &156077452
 MonoBehaviour:
   m_ObjectHideFlags: 0

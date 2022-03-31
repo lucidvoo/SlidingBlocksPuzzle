@@ -89,6 +89,15 @@ public class TileMover: MonoBehaviour
         Events.onHoleTileRemovingStarted.Invoke();
     }
 
+    // Speeds up and slows down 
+    internal void SpeedUpTime(float speedUpTime, float speedUpFactor)
+    {
+        
+        // TODO: complete!
+        
+        
+        //throw new NotImplementedException();
+    }
 
     private IEnumerator HoleDisappearVFX()
     {

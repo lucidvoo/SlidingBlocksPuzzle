@@ -12,6 +12,9 @@ public class TileGrid : MonoBehaviour
     [SerializeField] private Tile[] tileRefs;
     [SerializeField] private IntVariableSO numOfGameBlockersInt;
     [SerializeField] private TileMover tileMover;
+    [SerializeField] private float pauseBtwHoleRemoveAndShuffle = 0.6f;
+    [SerializeField] private float shuffleTime = 4f;
+    [SerializeField] private float speedUpFactor = 6f;
 
     private Tile[,] tiles;
     // The tile, that'll be hidden to meke hole in the puzzle
@@ -71,6 +74,8 @@ public class TileGrid : MonoBehaviour
 
             tileMover.RemoveHoleTile(tileClicked);
 
+            StartCoroutine(ShuffleBoard());
+
             return;
         }
 
@@ -85,14 +90,84 @@ public class TileGrid : MonoBehaviour
         MoveTiles(tileClicked);
     }
 
+    private IEnumerator ShuffleBoard()
+    {
+        yield return new WaitForSeconds(0.1f);
+        // wait for tile removal tween completed
+        yield return WaitUntilGameUnblocks();
+
+        // as soon as gameplay unblocked, pause
+        numOfGameBlockersInt.Value++;
+        yield return new WaitForSeconds(pauseBtwHoleRemoveAndShuffle);
+        numOfGameBlockersInt.Value--;
+
+        // check if nothing blocks us
+        yield return WaitUntilGameUnblocks();
+
+        tileMover.SpeedUpTime(shuffleTime, speedUpFactor);
+
+        float timeToStopShuffling = Time.realtimeSinceStartup + shuffleTime;
+        Tile tileToMove;
+        Vector2Int previousHoleCoords = holeTile.Indexes;
+        List<Tile> tilesAvilable = new List<Tile>(levelSettings.PuzzleSize * 2 - 2);
+        while (true)
+        {
+            yield return WaitUntilGameUnblocks();
+
+            if (Time.realtimeSinceStartup > timeToStopShuffling)
+            {
+                break;
+            }
+
+            tilesAvilable.Clear();
+
+            // find all tiles avilable to move, except one where the hole was in previous movement
+
+            // TODO: CORRECT MISTAKE SOMEWHERE HERE!
+
+            for (int i = 0; i < levelSettings.PuzzleSize; i++)
+            {
+                Tile tile = tiles[holeTile.Indexes.x, i];
+                if (tile != holeTile && tile != tiles[previousHoleCoords.x, previousHoleCoords.y])
+                {
+                    tilesAvilable.Add(tile);
+                }
+                tile = tiles[i, holeTile.Indexes.y];
+                if (tile != holeTile && tile != tiles[previousHoleCoords.x, previousHoleCoords.y])
+                {
+                    tilesAvilable.Add(tile);
+                }
+            }
+            // Randomly choose one tile from available ones
+            tileToMove = tilesAvilable[UnityEngine.Random.Range(0, tilesAvilable.Count)];
+            previousHoleCoords = holeTile.Indexes;
+
+            // CHANGE WHEN MISTAKE WILL BE CORRECTED !
+            //MoveTiles(tileToMove);
+            OnTileClicker_Handler(tileToMove);
+        }
+    }
+
+    private IEnumerator WaitUntilGameUnblocks()
+    {
+        while (true)
+        {
+            if (numOfGameBlockersInt.IsZero())
+            {
+                break;
+            }
+            yield return null;
+        }
+    }
+
     // Successful tile click - one or more tiles will be moved.
     private void MoveTiles(Tile tileClicked)
     {
         // Direction for tile moving
         Direction dir = (holeTile.transform.position - tileClicked.transform.position).ComputeDirectionFromVector3();
         // How many tiles to move (only one index delta is non-zero)
-        int tilesToMoveCount = Mathf.Abs(holeTile.Indexes.x - tileClicked.Indexes.x +
-                                         holeTile.Indexes.y - tileClicked.Indexes.y);
+        int tilesToMoveCount = Mathf.Abs(holeTile.Indexes.x - tileClicked.Indexes.x) +
+                               Mathf.Abs(holeTile.Indexes.y - tileClicked.Indexes.y);
 
         // tiles that have to be moved are gathering in array
         Tile[] tilesToMove = new Tile[tilesToMoveCount];
@@ -111,7 +186,7 @@ public class TileGrid : MonoBehaviour
         tileMover.SlideTiles(tilesToMove, dir);
     }
 
-    // Swap tile with hole near by in tiles array. Refresh Indexes
+    // Swap tile with hole near by in tiles array. Refresh Indexes. It doesn't move actual gameobjects
     private void SwapTileWithHole(Tile tile)
     {
         Tile neighbor = null;
@@ -151,16 +226,16 @@ public class TileGrid : MonoBehaviour
 
         Vector2Int neededTileIndexes = targetTile.Indexes + dirIndVector;
 
-        if (!IsIndexesInArrayRange(neededTileIndexes))
+        if (!AreIndexesInArrayRange(neededTileIndexes))
         {
-            Debug.LogWarning("Attempt to get tile from out of array bounds.");
+            Debug.Log("Attempt to get tile from out of array bounds.");
             return null;
         }
         
         return tiles[neededTileIndexes.x, neededTileIndexes.y];
     }
 
-    private bool IsIndexesInArrayRange(Vector2Int indexes)
+    private bool AreIndexesInArrayRange(Vector2Int indexes)
     {
         if (indexes.x < 0 || indexes.y < 0 )
         {
