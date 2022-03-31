@@ -15,6 +15,11 @@ public class TileMover: MonoBehaviour
     [Tooltip("Overall animation of tiles speed")]
     [SerializeField] private float animSpeed = 1f;
 
+    [Header("Tile sliding params")]
+    [Tooltip("Time between starting tiles to slide when multiple tiles moving")]
+    [SerializeField] private float slideStepTime = 0.2f;
+    [SerializeField] private float slideDuration = 0.5f;
+
     [Header("Wrong Shake params")]
     [SerializeField] private float shakeDuration = 0.6f;
     [SerializeField] private Vector3 shakeStrength;
@@ -84,6 +89,7 @@ public class TileMover: MonoBehaviour
         Events.onHoleTileRemovingStarted.Invoke();
     }
 
+
     private IEnumerator HoleDisappearVFX()
     {
         yield return new WaitForSeconds(vfxDelay / animSpeed);
@@ -92,6 +98,7 @@ public class TileMover: MonoBehaviour
         Events.onHoleTileVfxAppear.Invoke();
     }
 
+
     // deactivate hole tile and restore its transform to initial
     private void RemoveHoleTileFinalizer(Vector3 initPos, Quaternion initRot, Vector3 initScale)
     {
@@ -99,5 +106,27 @@ public class TileMover: MonoBehaviour
         holeTile.transform.position = initPos;
         holeTile.transform.rotation = initRot;
         holeTile.transform.localScale = initScale;
+    }
+
+
+    internal void SlideTiles(Tile[] tilesToMove, Direction dir)
+    {
+        // Relative moving vector
+        Vector3 moveByVector = dir.GetUnitVector3() * levelSettings.TileStepDistance;
+
+        // Tweening sequence
+        Sequence sequence = DOTween.Sequence();
+        for (int i = tilesToMove.Length - 1; i >= 0; i--)
+        {
+            // pause befor tile start sliding
+            float interval = (tilesToMove.Length - 1 - i) * slideStepTime / animSpeed;
+            sequence.Insert(interval, tilesToMove[i].transform.DOMove(moveByVector, slideDuration / animSpeed).SetRelative().SetEase(Ease.InQuad))
+                .OnStart(() => Events.onTileStartSliding.Invoke())
+                .OnKill(() => Events.onTileStopSliding.Invoke());
+        }
+        sequence.PrependCallback(OnTweenStart).AppendCallback(OnTweenComplete);
+
+        // Hole tile goes to new place
+        holeTile.transform.position = tilesToMove[0].transform.position;
     }
 }

@@ -48,13 +48,13 @@ public class TileGrid : MonoBehaviour
         for (int i = 0; i < tileRefs.Length; i++)
         {
             tiles[tileRefs[i].CorrectTileIndexes.x, tileRefs[i].CorrectTileIndexes.y] = tileRefs[i];
-            tileRefs[i].CurrentTileIndexes = tileRefs[i].CorrectTileIndexes;
+            tileRefs[i].Indexes = tileRefs[i].CorrectTileIndexes;
         }
     }
 
 
     // Invokes every time when tile clicked
-    private void OnTileClicker_Handler (Tile tileClicked)
+    private void OnTileClicker_Handler(Tile tileClicked)
     {
         if (!numOfGameBlockersInt.IsZero())
         {
@@ -75,8 +75,8 @@ public class TileGrid : MonoBehaviour
         }
 
         // Check if holeTile is in the same row or column as clicked tile
-        if (tileClicked.CurrentTileIndexes.x != holeTile.CurrentTileIndexes.x && 
-            tileClicked.CurrentTileIndexes.y != holeTile.CurrentTileIndexes.y)
+        if (tileClicked.Indexes.x != holeTile.Indexes.x &&
+            tileClicked.Indexes.y != holeTile.Indexes.y)
         {
             tileMover.WrongTileClick(tileClicked);
             return;
@@ -91,13 +91,10 @@ public class TileGrid : MonoBehaviour
         // Direction for tile moving
         Direction dir = (holeTile.transform.position - tileClicked.transform.position).ComputeDirectionFromVector3();
         // How many tiles to move (only one index delta is non-zero)
-        int tilesToMoveCount = holeTile.CurrentTileIndexes.x - tileClicked.CurrentTileIndexes.x +
-                               holeTile.CurrentTileIndexes.y - tileClicked.CurrentTileIndexes.y;
+        int tilesToMoveCount = Mathf.Abs(holeTile.Indexes.x - tileClicked.Indexes.x +
+                                         holeTile.Indexes.y - tileClicked.Indexes.y);
 
-        // TEST
-        Debug.Log("Have to move " + tilesToMoveCount + " tiles in direction " + dir);
-
-        // what  tiles to move?
+        // tiles that have to be moved are gathering in array
         Tile[] tilesToMove = new Tile[tilesToMoveCount];
         tilesToMove[0] = tileClicked;
         for (int i = 1; i < tilesToMoveCount; i++)
@@ -105,7 +102,44 @@ public class TileGrid : MonoBehaviour
             tilesToMove[i] = GetTileInDirectionFromTarget(tilesToMove[i - 1], dir);
         }
 
-        // TODO: what next?
+        // swap tiles in tiles array and refresh tile indexes 
+        for (int i = tilesToMove.Length - 1; i >= 0; i--)
+        {
+            SwapTileWithHole(tilesToMove[i]);
+        }
+
+        tileMover.SlideTiles(tilesToMove, dir);
+    }
+
+    // Swap tile with hole near by in tiles array. Refresh Indexes
+    private void SwapTileWithHole(Tile tile)
+    {
+        Tile neighbor = null;
+        Direction d;
+        for (d = Direction.UP; d < Direction.Count; d++)
+        {
+            neighbor = GetTileInDirectionFromTarget(tile, d);
+            if (neighbor == null)
+            {
+                continue;
+            }
+            else if (neighbor.IsHoleTile)
+            {
+                break;
+            }
+        }
+        if (d == Direction.Count)
+        {
+            Debug.LogWarning("Attempt to swap tile with no hole near by");
+            return;
+        }
+        // swap tiles in array
+        tiles[neighbor.Indexes.x, neighbor.Indexes.y] = tile;
+        tiles[tile.Indexes.x, tile.Indexes.y] = neighbor;
+        // swap CurrentIndexes of tiles
+        Vector2Int varForSwap = tile.Indexes;
+        tile.Indexes = neighbor.Indexes;
+        neighbor.Indexes = varForSwap;
     }
 
     private Tile GetTileInDirectionFromTarget(Tile targetTile, Direction dir)
@@ -113,11 +147,29 @@ public class TileGrid : MonoBehaviour
         // Get direction unit vector
         Vector3 dirVector3 = dir.GetUnitVector3();
         // Convert it to "array vector"
-        Vector2Int dirIndVector = new Vector2Int(Mathf.RoundToInt(dirVector3.x), Mathf.RoundToInt(- dirVector3.y));
+        Vector2Int dirIndVector = new Vector2Int(Mathf.RoundToInt(-dirVector3.y), Mathf.RoundToInt(dirVector3.x));
 
-        Vector2Int neededTileIndexes = targetTile.CurrentTileIndexes + dirIndVector;
+        Vector2Int neededTileIndexes = targetTile.Indexes + dirIndVector;
 
+        if (!IsIndexesInArrayRange(neededTileIndexes))
+        {
+            Debug.LogWarning("Attempt to get tile from out of array bounds.");
+            return null;
+        }
+        
         return tiles[neededTileIndexes.x, neededTileIndexes.y];
     }
 
+    private bool IsIndexesInArrayRange(Vector2Int indexes)
+    {
+        if (indexes.x < 0 || indexes.y < 0 )
+        {
+            return false;
+        }
+        if (indexes.x >= tiles.GetLength(0) || indexes.y >= tiles.GetLength(1))
+        {
+            return false;
+        }
+        return true;
+    }
 }

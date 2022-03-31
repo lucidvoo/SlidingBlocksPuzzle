@@ -16,8 +16,10 @@ public static class Events
     public static readonly Evt onTileCompleteAnyMovement = new Evt();
     public static readonly Evt onWrongTileClicked = new Evt();
     public static readonly Evt onTileStartSliding = new Evt();
+    public static readonly Evt onTileStopSliding = new Evt();
     public static readonly Evt onHoleTileRemovingStarted = new Evt();
     public static readonly Evt onHoleTileVfxAppear = new Evt();
+
 
     // Event with parameter example
     //public static readonly Evt<Card> onCardClicked = new Evt<Card>();

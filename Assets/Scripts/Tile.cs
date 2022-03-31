@@ -9,7 +9,7 @@ public class Tile : MonoBehaviour
     [Tooltip("Row and column of the right tile position (zero indexing)")]
     [SerializeField] private Vector2Int correctTileIndexes;
 
-    public Vector2Int CurrentTileIndexes { get; set; }
+    public Vector2Int Indexes { get; set; }
 
     public Vector2Int CorrectTileIndexes => correctTileIndexes;
 

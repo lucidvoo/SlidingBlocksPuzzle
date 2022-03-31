@@ -255,7 +255,9 @@ MonoBehaviour:
   vfxForHoleDisappear: {fileID: 1268531552312418943, guid: 48b50e6a6807d2846b15af4257db490c,
     type: 3}
   animSpeed: 1
-  shakeDuration: 0.4
+  slideStepTime: 0.07
+  slideDuration: 0.2
+  shakeDuration: 0.3
   shakeStrength: {x: 0.035, y: 0.035, z: 0.035}
   shakeVibrato: 25
   extractionVector: {x: 0, y: 0, z: -0.3}
