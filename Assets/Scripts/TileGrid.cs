@@ -88,59 +88,36 @@ public class TileGrid : MonoBehaviour
     // Successful tile click - one or more tiles will be moved.
     private void MoveTiles(Tile tileClicked)
     {
+        // Direction for tile moving
         Direction dir = (holeTile.transform.position - tileClicked.transform.position).ComputeDirectionFromVector3();
-
-        // TEST:
-        Debug.Log("Hole is in direction " + dir + " from clicked tile");
-
-        int tilesToMoveCount;
-        Vector2Int vectorToHole = holeTile.CurrentTileIndexes - tileClicked.CurrentTileIndexes;
-        // Evaluate direction of moving
-        if (vectorToHole.x != 0) // vertical direction
-        {
-            if (vectorToHole.x > 0)
-            {
-                dir = Direction.DOWN;
-            }
-            else
-            {
-                dir = Direction.UP;
-            }
-            tilesToMoveCount = Mathf.Abs(vectorToHole.x);
-        }
-        else // horizontal direction
-        {
-            if (vectorToHole.y > 0)
-            {
-                dir = Direction.RIGHT;
-            }
-            else
-            {
-                dir = Direction.LEFT;
-            }
-            tilesToMoveCount = Mathf.Abs(vectorToHole.y);
-        }
+        // How many tiles to move (only one index delta is non-zero)
+        int tilesToMoveCount = holeTile.CurrentTileIndexes.x - tileClicked.CurrentTileIndexes.x +
+                               holeTile.CurrentTileIndexes.y - tileClicked.CurrentTileIndexes.y;
 
         // TEST
-        //Debug.Log("Have to move " + tilesToMoveCount + " tiles in direction " + dir);
+        Debug.Log("Have to move " + tilesToMoveCount + " tiles in direction " + dir);
 
         // what  tiles to move?
-        Stack<Tile> tilesToMove = new Stack<Tile>(levelSettings.PuzzleSize - 1);
-        tilesToMove.Push(tileClicked);
-        for (int i = 0; i < tilesToMoveCount; i++)
+        Tile[] tilesToMove = new Tile[tilesToMoveCount];
+        tilesToMove[0] = tileClicked;
+        for (int i = 1; i < tilesToMoveCount; i++)
         {
-            //tilesToMove.Push(GetTileInDirectionFromTarget(tilesToMove.Peek(), dir));
+            tilesToMove[i] = GetTileInDirectionFromTarget(tilesToMove[i - 1], dir);
         }
 
         // TODO: what next?
     }
 
-    /*private Tile GetTileInDirectionFromTarget(Tile targetTile, Direction dir)
+    private Tile GetTileInDirectionFromTarget(Tile targetTile, Direction dir)
     {
-        // Get direction one vector
-        Vector2Int dirVector;
-        // TODO: complete
-        // TODO: extension for direction enum
-    }*/
+        // Get direction unit vector
+        Vector3 dirVector3 = dir.GetUnitVector3();
+        // Convert it to "array vector"
+        Vector2Int dirIndVector = new Vector2Int(Mathf.RoundToInt(dirVector3.x), Mathf.RoundToInt(- dirVector3.y));
+
+        Vector2Int neededTileIndexes = targetTile.CurrentTileIndexes + dirIndVector;
+
+        return tiles[neededTileIndexes.x, neededTileIndexes.y];
+    }
 
 }
