@@ -15,7 +15,7 @@ public class UVAdjuster : MonoBehaviour
     private float scaleFactorUVs;
     private Vector2 offsetUVs;
 
-    private void Awake()
+    private void Start()
     {
         CalculateScaleAndOffset();
         AdjustUVs();

@@ -44,6 +44,32 @@ public static class DirectionExtension
         return vector;
     }
 
+    // Get unit vector for a direction
+    public static Vector2Int GetUnitVector2Int(this Direction dir)
+    {
+        Vector2Int vector = Vector2Int.zero;
+        switch (dir)
+        {
+            case Direction.UP:
+                vector = Vector2Int.up;
+                break;
+            case Direction.RIGHT:
+                vector = Vector2Int.right;
+                break;
+            case Direction.DOWN:
+                vector = Vector2Int.down;
+                break;
+            case Direction.LEFT:
+                vector = Vector2Int.left;
+                break;
+            case Direction.Count:
+            default:
+                Debug.LogError("Direction enum error!");
+                break;
+        }
+        return vector;
+    }
+
     // Extension for Vector3. 
     public static Direction ComputeDirectionFromVector3(this Vector3 vector3)
     {
@@ -63,4 +89,16 @@ public static class DirectionExtension
         return Direction.DOWN;
     }
 
+    // Extension for Vector2Int
+    public static Direction ConvertToDirection(this Vector2Int vector2Int)
+    {
+        if (Mathf.Abs(vector2Int.x) > Mathf.Abs(vector2Int.y)) // horiz direction
+        {
+            return vector2Int.x > 0 ? Direction.RIGHT : Direction.LEFT;
+        }
+        else
+        {
+            return vector2Int.y > 0 ? Direction.UP : Direction.DOWN;
+        }
+    }
 }

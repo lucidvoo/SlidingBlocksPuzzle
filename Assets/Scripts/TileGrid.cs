@@ -51,11 +51,22 @@ public class TileGrid : MonoBehaviour
 
         tiles = new Tile[levelSettings.PuzzleSize, levelSettings.PuzzleSize];
 
+        // find bottom-left tile
+        Vector3 zeroTileOffset = tileRefs[0].transform.position;
+        foreach (Tile tile in tileRefs)
+        {
+            if (tile.transform.position.x < zeroTileOffset.x || tile.transform.position.y < zeroTileOffset.y)
+            {
+                zeroTileOffset = tile.transform.position;
+            }
+        }
+        // Initialize Tiles and fill tiles[] array
         for (int i = 0; i < tileRefs.Length; i++)
         {
-            tiles[tileRefs[i].CorrectIndX, tileRefs[i].CorrectIndY] = tileRefs[i];
-            tileRefs[i].IndX = tileRefs[i].CorrectIndX;
-            tileRefs[i].IndY = tileRefs[i].CorrectIndY;
+            tileRefs[i].Init(zeroTileOffset, levelSettings.TileStepDistance);
+            int indX = tileRefs[i].IndX();
+            int indY = tileRefs[i].IndY();
+            tiles[indX, indY] = tileRefs[i];
         }
     }
 
@@ -84,14 +95,14 @@ public class TileGrid : MonoBehaviour
         }
 
         // Check if holeTile is in the same row or column as clicked tile
-        if (tileClicked.IndX != holeTile.IndX &&
-            tileClicked.IndY != holeTile.IndY)
+        if (tileClicked.IndX() != holeTile.IndX() &&
+            tileClicked.IndY() != holeTile.IndY())
         {
             tileMover.WrongTileClick(tileClicked);
             return;
         }
 
-        MoveTiles(tileClicked);
+        StartTilesMovement(tileClicked);
     }
 
     private IEnumerator ShuffleBoard()
@@ -112,8 +123,8 @@ public class TileGrid : MonoBehaviour
 
         float timeToStopShuffling = Time.realtimeSinceStartup + shuffleTime;
         Tile tileToMove;
-        int previousHoleIndX = holeTile.IndX;
-        int previousHoleIndY = holeTile.IndY;
+        int previousHoleIndX = holeTile.IndX();
+        int previousHoleIndY = holeTile.IndY();
         List<Tile> tilesAvilable = new List<Tile>(levelSettings.PuzzleSize * 2 - 2);
         while (true)
         {
@@ -129,12 +140,12 @@ public class TileGrid : MonoBehaviour
             // find all tiles avilable to move, except one where the hole was in previous movement
             for (int i = 0; i < levelSettings.PuzzleSize; i++)
             {
-                Tile tile = tiles[holeTile.IndX, i];
+                Tile tile = tiles[holeTile.IndX(), i];
                 if (tile != holeTile && tile != tiles[previousHoleIndX, previousHoleIndY])
                 {
                     tilesAvilable.Add(tile);
                 }
-                tile = tiles[i, holeTile.IndY];
+                tile = tiles[i, holeTile.IndY()];
                 if (tile != holeTile && tile != tiles[previousHoleIndX, previousHoleIndY])
                 {
                     tilesAvilable.Add(tile);
@@ -142,10 +153,10 @@ public class TileGrid : MonoBehaviour
             }
             // Randomly choose one tile from available ones
             tileToMove = tilesAvilable[UnityEngine.Random.Range(0, tilesAvilable.Count)];
-            previousHoleIndX = holeTile.IndX;
-            previousHoleIndY = holeTile.IndY;
+            previousHoleIndX = holeTile.IndX();
+            previousHoleIndY = holeTile.IndY();
 
-            MoveTiles(tileToMove);
+            StartTilesMovement(tileToMove);
             yield return null;
         }
     }
@@ -163,14 +174,15 @@ public class TileGrid : MonoBehaviour
     }
 
     // Successful tile click - one or more tiles will be moved.
-    private void MoveTiles(Tile tileClicked)
+    private void StartTilesMovement(Tile tileClicked)
     {
+        Vector2Int indexVector = new Vector2Int(holeTile.IndX() - tileClicked.IndX(), holeTile.IndY() - tileClicked.IndY());
         // Direction for tile moving
-        Direction dir = (holeTile.transform.position - tileClicked.transform.position).ComputeDirectionFromVector3();
+        Direction dir = indexVector.ConvertToDirection();
         // How many tiles to move (only one index delta is non-zero)
-        int tilesToMoveCount = Mathf.Abs(holeTile.IndX - tileClicked.IndX + holeTile.IndY - tileClicked.IndY);
+        int tilesToMoveCount = Mathf.Abs(indexVector.x + indexVector.y); 
 
-        // tiles that have to be moved are gathering in array
+        // tiles that have to be moved are gathering in array. First tile - clicked one, last tile - closest to hole
         Tile[] tilesToMove = new Tile[tilesToMoveCount];
         tilesToMove[0] = tileClicked;
         for (int i = 1; i < tilesToMoveCount; i++)
@@ -178,58 +190,37 @@ public class TileGrid : MonoBehaviour
             tilesToMove[i] = GetTileInDirectionFromTarget(tilesToMove[i - 1], dir);
         }
 
-        // swap tiles in tiles array and refresh tile indexes 
+        SlideTileArray(tilesToMove, dir);
+    }
+
+
+    // Shift group of tiles in array tiles[] and move gameobjects
+    private void SlideTileArray(Tile[] tilesToMove, Direction dir)
+    {
+        int writeIndX = holeTile.IndX();
+        int writeIndY = holeTile.IndY();
+        // "gradual shift" tiles in direction of hole
         for (int i = tilesToMove.Length - 1; i >= 0; i--)
         {
-            SwapTileWithHole(tilesToMove[i]);
+            tiles[writeIndX, writeIndY] = tilesToMove[i];
+            writeIndX = tilesToMove[i].IndX();
+            writeIndY = tilesToMove[i].IndY();
         }
+        // move hole in place of last moved tile
+        tiles[writeIndX, writeIndY] = holeTile;
 
+        // move actual gameobjects
         tileMover.SlideTiles(tilesToMove, dir);
     }
 
-    // Swap tile with hole near by in tiles array. Refresh Indexes. It doesn't move actual gameobjects
-    private void SwapTileWithHole(Tile tile)
-    {
-        Tile neighbor = null;
-        Direction d;
-        for (d = Direction.UP; d < Direction.Count; d++)
-        {
-            neighbor = GetTileInDirectionFromTarget(tile, d);
-            if (neighbor == null)
-            {
-                continue;
-            }
-            else if (neighbor.IsHoleTile)
-            {
-                break;
-            }
-        }
-        if (d == Direction.Count)
-        {
-            Debug.LogWarning("Attempt to swap tile with no hole near by");
-            return;
-        }
-        // swap tiles in array
-        tiles[neighbor.IndX, neighbor.IndY] = tile;
-        tiles[tile.IndX, tile.IndY] = neighbor;
-        // swap CurrentIndexes of tiles
-        int varForSwapX = tile.IndX;
-        int varForSwapY = tile.IndY;
-        tile.IndX = neighbor.IndX;
-        tile.IndY = neighbor.IndY;
-        neighbor.IndX = varForSwapX;
-        neighbor.IndY = varForSwapY;
-    }
 
     private Tile GetTileInDirectionFromTarget(Tile targetTile, Direction dir)
     {
         // Get direction unit vector
-        Vector3 dirVector3 = dir.GetUnitVector3();
-        // Convert it to "array vector"
-        Vector2Int dirIndVector = new Vector2Int(Mathf.RoundToInt(dirVector3.x), Mathf.RoundToInt(dirVector3.y));
+        Vector2Int dirIndVector = dir.GetUnitVector2Int();
 
-        int neededTileIndX = targetTile.IndX + dirIndVector.x;
-        int neededTileIndY = targetTile.IndY + dirIndVector.y;
+        int neededTileIndX = targetTile.IndX() + dirIndVector.x;
+        int neededTileIndY = targetTile.IndY() + dirIndVector.y;
 
         if (!AreIndexesInArrayRange(neededTileIndX, neededTileIndY))
         {
@@ -239,6 +230,7 @@ public class TileGrid : MonoBehaviour
         
         return tiles[neededTileIndX, neededTileIndY];
     }
+
 
     private bool AreIndexesInArrayRange(int indX, int indY)
     {
