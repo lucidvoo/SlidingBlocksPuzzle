@@ -6,12 +6,14 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    [Tooltip("Row and column of the right tile position (zero indexing)")]
-    [SerializeField] private Vector2Int correctTileIndexes;
+    [Tooltip("X and Y indexes of the correct tile position (zero indexing from bottom-left)")]
+    [SerializeField] private int correctIndX, correctIndY;
 
-    public Vector2Int Indexes { get; set; }
+    public int IndX { get; set; }
+    public int IndY { get; set; }
 
-    public Vector2Int CorrectTileIndexes => correctTileIndexes;
+    public int CorrectIndX => correctIndX;
+    public int CorrectIndY => correctIndY;
 
     public bool IsHoleTile { get; set; }
 
