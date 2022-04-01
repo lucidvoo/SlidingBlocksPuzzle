@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-// Moving tiles, tweening via DoTween
+// Moving tiles, encapsulates tweening via DoTween
 public class TileMover: MonoBehaviour
 {
     [SerializeField] private LevelSettingsSO levelSettings;
@@ -43,12 +43,14 @@ public class TileMover: MonoBehaviour
         DOTween.Init(true, true, LogBehaviour.Default);
     }
 
+
     // In the beginning of any movement
     private void OnTweenStart()
     {
         numOfGameBlockersInt.Value++;
         Events.onTileStartAnyMovement.Invoke();
     }
+
 
     // In the end of any movement
     private void OnTweenComplete()
@@ -65,6 +67,7 @@ public class TileMover: MonoBehaviour
         tweener.OnStart(OnTweenStart).OnKill(OnTweenComplete);
         Events.onWrongTileClicked.Invoke();
     }
+
 
     // animation and vfx of disappearance of hole tile selected by user 
     internal void RemoveHoleTile(Tile tileToRemove)
@@ -89,14 +92,21 @@ public class TileMover: MonoBehaviour
         Events.onHoleTileRemovingStarted.Invoke();
     }
 
-    // Speeds up and slows down 
+
+    // Speeds up and slows down unity time scale for cool shuffling
     internal void SpeedUpTime(float speedUpTime, float speedUpFactor)
     {
-        
-        // TODO: complete!
-        
-        
-        //throw new NotImplementedException();
+        //Time.timeScale = 1f;
+        /*Tweener tweener = DOTween.To(() => Time.timeScale, x => Time.timeScale = x, speedUpFactor, speedUpTime);
+        tweener.SetEase(Ease.InOutQuad).SetLoops(2, LoopType.Yoyo);*/
+
+        Sequence sequence = DOTween.Sequence();
+        Time.timeScale = 0.6f;
+        sequence.Append(DOTween.To(() => Time.timeScale, x => Time.timeScale = x, speedUpFactor, speedUpTime * 0.4f).SetEase(Ease.InOutQuad))
+                .AppendInterval(speedUpTime * 0.2f)
+                .Append(DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0.6f, speedUpTime * 0.4f).SetEase(Ease.InOutQuad))
+                .AppendCallback(() => Time.timeScale = 1f)
+                .SetUpdate(UpdateType.Normal, isIndependentUpdate: true);
     }
 
     private IEnumerator HoleDisappearVFX()

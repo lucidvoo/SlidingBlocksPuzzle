@@ -41,7 +41,8 @@ public class TileGrid : MonoBehaviour
         InitializeTileArray();
     }
 
-    // fill 2-dim tiles array with refs from editor
+
+    // fill 2-dim tiles array with refs from editor. Init tiles.
     private void InitializeTileArray()
     {
         if (tileRefs.Length != levelSettings.PuzzleSize * levelSettings.PuzzleSize)
@@ -51,7 +52,7 @@ public class TileGrid : MonoBehaviour
 
         tiles = new Tile[levelSettings.PuzzleSize, levelSettings.PuzzleSize];
 
-        // find bottom-left tile
+        // find bottom-left tile position
         Vector3 zeroTileOffset = tileRefs[0].transform.position;
         foreach (Tile tile in tileRefs)
         {
@@ -79,7 +80,7 @@ public class TileGrid : MonoBehaviour
             return;
         }
 
-        // Choosing a tile to remove at the very beginning
+        // Choosing a tile to remove at the very beginning and shuffle
         if (!isGameBegun)
         {
             isGameBegun = true;
@@ -105,6 +106,7 @@ public class TileGrid : MonoBehaviour
         StartTilesMovement(tileClicked);
     }
 
+
     private IEnumerator ShuffleBoard()
     {
         yield return new WaitForSeconds(0.1f);
@@ -129,6 +131,7 @@ public class TileGrid : MonoBehaviour
         {
             yield return WaitUntilGameUnblocks();
 
+            // quit shuffling by timer
             if (Time.realtimeSinceStartup > timeToStopShuffling)
             {
                 break;
@@ -156,6 +159,7 @@ public class TileGrid : MonoBehaviour
         }
     }
 
+
     private IEnumerator WaitUntilGameUnblocks()
     {
         while (true)
@@ -167,6 +171,7 @@ public class TileGrid : MonoBehaviour
             yield return null;
         }
     }
+
 
     // Successful tile click - one or more tiles will be moved.
     private void StartTilesMovement(Tile tileClicked)

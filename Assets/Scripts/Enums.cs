@@ -71,6 +71,7 @@ public static class DirectionExtension
     }
 
     // Extension for Vector3. 
+    /* UNUSED
     public static Direction ComputeDirectionFromVector3(this Vector3 vector3)
     {
         float angle = Vector3.SignedAngle(Vector3.up, vector3, Vector3.back);
@@ -88,6 +89,7 @@ public static class DirectionExtension
         }
         return Direction.DOWN;
     }
+    */
 
     // Extension for Vector2Int
     public static Direction ConvertToDirection(this Vector2Int vector2Int)
