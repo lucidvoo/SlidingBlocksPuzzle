@@ -122,9 +122,6 @@ public class TileGrid : MonoBehaviour
             tilesAvilable.Clear();
 
             // find all tiles avilable to move, except one where the hole was in previous movement
-
-            // TODO: CORRECT MISTAKE SOMEWHERE HERE!
-
             for (int i = 0; i < levelSettings.PuzzleSize; i++)
             {
                 Tile tile = tiles[holeTile.Indexes.x, i];
@@ -142,9 +139,8 @@ public class TileGrid : MonoBehaviour
             tileToMove = tilesAvilable[UnityEngine.Random.Range(0, tilesAvilable.Count)];
             previousHoleCoords = holeTile.Indexes;
 
-            // CHANGE WHEN MISTAKE WILL BE CORRECTED !
-            //MoveTiles(tileToMove);
-            OnTileClicker_Handler(tileToMove);
+            MoveTiles(tileToMove);
+            yield return null;
         }
     }
 
