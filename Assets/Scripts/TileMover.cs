@@ -60,7 +60,7 @@ public class TileMover: MonoBehaviour
     }
 
 
-    // tween shake reaction to unmovable tile click
+    // tween shake reaction for unmovable tile click
     internal void WrongTileClick(Tile tileClicked)
     {
         Tweener tweener = tileClicked.transform.DOShakePosition(shakeDuration / animSpeed, shakeStrength, shakeVibrato);
@@ -96,10 +96,6 @@ public class TileMover: MonoBehaviour
     // Speeds up and slows down unity time scale for cool shuffling
     internal void SpeedUpTime(float speedUpTime, float speedUpFactor)
     {
-        //Time.timeScale = 1f;
-        /*Tweener tweener = DOTween.To(() => Time.timeScale, x => Time.timeScale = x, speedUpFactor, speedUpTime);
-        tweener.SetEase(Ease.InOutQuad).SetLoops(2, LoopType.Yoyo);*/
-
         Sequence sequence = DOTween.Sequence();
         Time.timeScale = 0.6f;
         sequence.Append(DOTween.To(() => Time.timeScale, x => Time.timeScale = x, speedUpFactor, speedUpTime * 0.4f).SetEase(Ease.InOutQuad))
@@ -108,6 +104,7 @@ public class TileMover: MonoBehaviour
                 .AppendCallback(() => Time.timeScale = 1f)
                 .SetUpdate(UpdateType.Normal, isIndependentUpdate: true);
     }
+
 
     private IEnumerator HoleDisappearVFX()
     {
@@ -128,6 +125,7 @@ public class TileMover: MonoBehaviour
     }
 
 
+    // Slide move group of tiles in place of the hole
     internal void SlideTiles(Tile[] tilesToMove, Direction dir)
     {
         // Relative moving vector
