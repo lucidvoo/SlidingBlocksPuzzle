@@ -123,9 +123,8 @@ public class TileGrid : MonoBehaviour
 
         float timeToStopShuffling = Time.realtimeSinceStartup + shuffleTime;
         Tile tileToMove;
-        int previousHoleIndX = holeTile.IndX();
-        int previousHoleIndY = holeTile.IndY();
-        List<Tile> tilesAvilable = new List<Tile>(levelSettings.PuzzleSize * 2 - 2);
+        bool moveHorizontally = true;
+        List<Tile> tilesAvilable = new List<Tile>(levelSettings.PuzzleSize - 1);
         while (true)
         {
             yield return WaitUntilGameUnblocks();
@@ -137,24 +136,20 @@ public class TileGrid : MonoBehaviour
 
             tilesAvilable.Clear();
 
-            // find all tiles avilable to move, except one where the hole was in previous movement
+            // Make list of tiles available to move
             for (int i = 0; i < levelSettings.PuzzleSize; i++)
             {
-                Tile tile = tiles[holeTile.IndX(), i];
-                if (tile != holeTile && tile != tiles[previousHoleIndX, previousHoleIndY])
-                {
-                    tilesAvilable.Add(tile);
-                }
-                tile = tiles[i, holeTile.IndY()];
-                if (tile != holeTile && tile != tiles[previousHoleIndX, previousHoleIndY])
+                Tile tile = moveHorizontally ? tiles[i, holeTile.IndY()] : tiles[holeTile.IndX(), i];
+                
+                if (tile != holeTile)
                 {
                     tilesAvilable.Add(tile);
                 }
             }
+            moveHorizontally = !moveHorizontally;
+
             // Randomly choose one tile from available ones
             tileToMove = tilesAvilable[UnityEngine.Random.Range(0, tilesAvilable.Count)];
-            previousHoleIndX = holeTile.IndX();
-            previousHoleIndY = holeTile.IndY();
 
             StartTilesMovement(tileToMove);
             yield return null;
