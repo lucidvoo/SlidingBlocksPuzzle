@@ -7,7 +7,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "xxxLevelSettings", menuName = "SO/Level Settings", order = 10)]
 public class LevelSettingsSO : ScriptableObject
 {
-    [Tooltip("Number of tiles in each row")]
+    [Tooltip("Number of tiles in each row or column")]
     [SerializeField] private int puzzleSize;
     [Tooltip("Distance between centers of two adjacent tiles")]
     [SerializeField] private float tileStepDistance = 1f;

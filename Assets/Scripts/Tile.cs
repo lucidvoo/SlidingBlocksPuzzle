@@ -6,18 +6,37 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    [Tooltip("Row and column of the right tile position (zero indexing)")]
-    [SerializeField] private Vector2Int correctTileIndexes;
+    /*[Tooltip("X and Y indexes of the correct tile position (zero indexing from bottom-left)")]
+    [SerializeField] private int correctIndX, correctIndY;*/
 
-    public Vector2Int Indexes { get; set; }
+    private Vector3 zeroTileOffset;
+    private float tileStepDistance;
 
-    public Vector2Int CorrectTileIndexes => correctTileIndexes;
+    public int CorrectIndX { get; set; }
+    public int CorrectIndY { get; set; }
 
     public bool IsHoleTile { get; set; }
 
+    public void Init(Vector3 zeroTileOffset, float tileStepDistance)
+    {
+        this.zeroTileOffset = zeroTileOffset;
+        this.tileStepDistance = tileStepDistance;
+        CorrectIndX = IndX();
+        CorrectIndY = IndY();
+    }
 
     private void OnMouseDown()
     {
         Events.onTileClicked.Invoke(this);
+    }
+
+    public int IndX()
+    {
+        return Mathf.RoundToInt((transform.position.x - zeroTileOffset.x) / tileStepDistance);
+    }
+
+    public int IndY()
+    {
+        return Mathf.RoundToInt((transform.position.y - zeroTileOffset.y) / tileStepDistance);
     }
 }
