@@ -11,15 +11,18 @@ public static class Events
     // Player input
     public static readonly Evt<Tile> onTileClicked = new Evt<Tile>();
 
-    // Animation
+    // Tiles animation
     public static readonly Evt onTileStartAnyMovement = new Evt();
     public static readonly Evt onTileCompleteAnyMovement = new Evt();
     public static readonly Evt onWrongTileClicked = new Evt();
     public static readonly Evt onTileStartSliding = new Evt();
     public static readonly Evt onTileStopSliding = new Evt();
     public static readonly Evt onHoleTileRemovingStarted = new Evt();
-    public static readonly Evt onHoleTileVfxAppear = new Evt();
+    public static readonly Evt onHoleTileDisappearVfx = new Evt();
+    public static readonly Evt onHoleTileAppearVfx = new Evt();
 
+    // Level
+    public static readonly Evt onLevelWin = new Evt();
 
     // Event with parameter example
     //public static readonly Evt<Card> onCardClicked = new Evt<Card>();

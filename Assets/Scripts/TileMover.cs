@@ -10,6 +10,7 @@ public class TileMover: MonoBehaviour
     [SerializeField] private LevelSettingsSO levelSettings;
     [SerializeField] private IntVariableSO numOfGameBlockersInt;
     [SerializeField] private GameObject vfxForHoleDisappear;
+    [SerializeField] private GameObject vfxForHoleAppearance;
 
     [Space]
     [Tooltip("Overall animation of tiles speed")]
@@ -32,7 +33,17 @@ public class TileMover: MonoBehaviour
     [Tooltip("Relative vector to rotate hole tile")]
     [SerializeField] private Vector3 rotationVector;
     [SerializeField] private float rotationDuration = 0.5f;
-    [SerializeField] private float vfxDelay;
+    [SerializeField] private float disappearVfxDelay;
+
+    [Header("Win sequence params")]
+    [SerializeField] private float pauseBeforeHoleTileAppear = 0.5f;
+    [SerializeField] private float pauseBeforeHoleTileInsert = 0.3f;
+    [SerializeField] private float pauseAfterHoleTileInsert = 1f;
+    [SerializeField] private float holeTileAppearDuration = 0.8f;
+    [SerializeField] private float holeTileInsertDuration = 1f;
+    [SerializeField] private float cameraZoomDuration = 1f;
+    [SerializeField] private float cameraZoomAmount = 1f;
+    [SerializeField] private float appearVfxDelay = 0.2f;
 
     private Tile holeTile;
 
@@ -93,25 +104,12 @@ public class TileMover: MonoBehaviour
     }
 
 
-    // Speeds up and slows down unity time scale for cool shuffling
-    internal void SpeedUpTime(float speedUpTime, float speedUpFactor)
-    {
-        Sequence sequence = DOTween.Sequence();
-        Time.timeScale = 0.6f;
-        sequence.Append(DOTween.To(() => Time.timeScale, x => Time.timeScale = x, speedUpFactor, speedUpTime * 0.4f).SetEase(Ease.InOutQuad))
-                .AppendInterval(speedUpTime * 0.2f)
-                .Append(DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0.6f, speedUpTime * 0.4f).SetEase(Ease.InOutQuad))
-                .AppendCallback(() => Time.timeScale = 1f)
-                .SetUpdate(UpdateType.Normal, isIndependentUpdate: true);
-    }
-
-
     private IEnumerator HoleDisappearVFX()
     {
-        yield return new WaitForSeconds(vfxDelay / animSpeed);
+        yield return new WaitForSeconds(disappearVfxDelay / animSpeed);
         GameObject effect = Instantiate(vfxForHoleDisappear, holeTile.transform.position, Quaternion.identity);
         Destroy(effect, 3f);
-        Events.onHoleTileVfxAppear.Invoke();
+        Events.onHoleTileDisappearVfx.Invoke();
     }
 
 
@@ -145,5 +143,52 @@ public class TileMover: MonoBehaviour
 
         // Hole tile goes to new place
         holeTile.transform.position = tilesToMove[0].transform.position;
+    }
+
+
+    // Speeds up and slows down unity time scale for cool shuffling
+    internal void SpeedUpTime(float speedUpTime, float speedUpFactor)
+    {
+        Sequence sequence = DOTween.Sequence();
+        Time.timeScale = 0.6f;
+        sequence.Append(DOTween.To(() => Time.timeScale, x => Time.timeScale = x, speedUpFactor, speedUpTime * 0.4f).SetEase(Ease.InOutQuad))
+                .AppendInterval(speedUpTime * 0.2f)
+                .Append(DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0.6f, speedUpTime * 0.4f).SetEase(Ease.InOutQuad))
+                .AppendCallback(() => Time.timeScale = 1f)
+                .SetUpdate(UpdateType.Normal, isIndependentUpdate: true);
+    }
+
+
+    // Return hole tile, camera zoom and fire onLevelWin event
+    internal void WinSequence()
+    {
+        Vector3 correctPos = holeTile.transform.position;
+        Debug.Log(correctPos);
+        Quaternion correctRotation = holeTile.transform.rotation;
+        Vector3 correctScale = holeTile.transform.localScale;
+
+        holeTile.transform.position = holeTile.transform.position + extractionVector;
+        holeTile.transform.localScale = Vector3.zero;
+        holeTile.gameObject.SetActive(true);
+        
+        Sequence sequence = DOTween.Sequence();
+        sequence.AppendInterval(pauseBeforeHoleTileAppear / animSpeed)
+            .AppendCallback(() => StartCoroutine(HoleAppearVFX()))
+            .Append(holeTile.transform.DOScale(correctScale, holeTileAppearDuration / animSpeed).SetEase(Ease.OutBack, 3f))
+            .AppendInterval(pauseBeforeHoleTileInsert / animSpeed)
+            .Append(holeTile.transform.DOMove(correctPos, holeTileInsertDuration / animSpeed).SetEase(Ease.OutCubic))
+            .Join(Camera.main.DOFieldOfView(Camera.main.fieldOfView / cameraZoomAmount, cameraZoomDuration).SetEase(Ease.InOutQuad))
+            .AppendInterval(pauseAfterHoleTileInsert / animSpeed)
+            .AppendCallback(() => Events.onLevelWin.Invoke())
+            .PrependCallback(OnTweenStart);
+            //.AppendCallback(OnTweenComplete); // we don't need to enable player control anymore
+    }
+
+    private IEnumerator HoleAppearVFX()
+    {
+        yield return new WaitForSeconds(appearVfxDelay / animSpeed);
+        GameObject effect = Instantiate(vfxForHoleAppearance, holeTile.transform.position, Quaternion.identity);
+        Destroy(effect, 3f);
+        Events.onHoleTileAppearVfx.Invoke();
     }
 }

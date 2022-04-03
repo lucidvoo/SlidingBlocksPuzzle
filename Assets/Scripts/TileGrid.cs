@@ -23,18 +23,20 @@ public class TileGrid : MonoBehaviour
     private Tile holeTile;
     // Game begins as soon as player choses tile to remove
     private bool isGameBegun = false;
+    private bool isBoardShuffled = false;
 
 
     private void OnEnable()
     {
         Events.onTileClicked.AddListener(OnTileClicker_Handler);
+        Events.onTileCompleteAnyMovement.AddListener(CheckForWin);
     }
 
     private void OnDisable()
     {
         Events.onTileClicked.RemoveListener(OnTileClicker_Handler);
+        Events.onTileCompleteAnyMovement.RemoveListener(CheckForWin);
     }
-
 
     private void Awake()
     {
@@ -157,6 +159,7 @@ public class TileGrid : MonoBehaviour
             StartTilesMovement(tileToMove);
             yield return null;
         }
+        isBoardShuffled = true;
     }
 
 
@@ -243,5 +246,31 @@ public class TileGrid : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+
+    // Check win conditions when onTileCompleteAnyMovement event is fired
+    private void CheckForWin()
+    {
+        if (!isBoardShuffled)
+        {
+            return;
+        }
+
+        // Check if all tiles in their correct places
+        int tilesChecked = 0;
+        foreach (Tile tile in tiles)
+        {
+            if (tile.IndX() != tile.CorrectIndX || tile.IndY() != tile.CorrectIndY)
+            {
+                break;
+            }
+            tilesChecked++;
+        }
+
+        if (tilesChecked == tiles.Length)
+        {
+            tileMover.WinSequence();
+        }
     }
 }
