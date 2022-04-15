@@ -23,6 +23,12 @@ public static class Events
 
     // Level
     public static readonly Evt onLevelWin = new Evt();
+    public static readonly Evt onBoardStartShuffling = new Evt();
+    public static readonly Evt onBoardShuffled = new Evt();
+
+    // Game
+    public static readonly Evt onGamePaused = new Evt();
+    public static readonly Evt onGameUnpaused = new Evt();
 
     // Event with parameter example
     //public static readonly Evt<Card> onCardClicked = new Evt<Card>();

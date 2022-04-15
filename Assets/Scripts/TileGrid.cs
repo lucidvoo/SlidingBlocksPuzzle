@@ -123,6 +123,8 @@ public class TileGrid : MonoBehaviour
         // check if nothing blocks us
         yield return WaitUntilGameUnblocks();
 
+        Events.onBoardStartShuffling.Invoke();
+
         tileMover.SpeedUpTime(shuffleTime, speedUpFactor);
 
         float timeToStopShuffling = Time.realtimeSinceStartup + shuffleTime;
@@ -160,6 +162,8 @@ public class TileGrid : MonoBehaviour
             yield return null;
         }
         isBoardShuffled = true;
+        Time.timeScale = 1f; // just to be sure
+        Events.onBoardShuffled.Invoke();
     }
 
 
