@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// задаются маркеры, обозначающие прямоугольник, который должен входить в поле зрения камеры.
-// Камера независимо от аспекта поддерживает поле зрения так, чтобы прямоугольник упирался в края поля зрения.
-// у камеры меняется position для этого. Камера смотрит в центр прямоугольника.
-// камера должна смотреть вдоль оси Z. Маркеры лежат в плоскости, перпендикулярной Z.
-// (по идее это не нужно если аспект горизонтальный, это нужно если аспект в игре может стать вертикальным.)
+// there's markers those form a rectangle. It will fill camera view by changing camera Z coord.
+// works for both horizontal and vertical aspects
+// Camera looks at the center of the rectangle
+// Camera must look strictly at the direction of Z axis.
+// mainly this all needed for vertical aspects.
 [RequireComponent(typeof(Camera))]
 public class CameraMarkers : MonoBehaviour
 {
@@ -17,8 +17,6 @@ public class CameraMarkers : MonoBehaviour
     private float screenAspect;
     private Camera cameraCompon;
     private Vector3 TRMarker, BLMarker;
-
-
 
     void Start()
     {
@@ -38,7 +36,7 @@ public class CameraMarkers : MonoBehaviour
 
     void LateUpdate()
     {
-        // рассчитываем камеру только если размер экрана изменился
+        // adjust camera if only aspect changed
         if (screenAspect != cameraCompon.aspect)
         {
             AdjustCamera();
@@ -53,15 +51,15 @@ public class CameraMarkers : MonoBehaviour
 
         screenAspect = cameraCompon.aspect;
 
-        // расстояние от камеры до маркеров
+        // distance between camera and markers
         float deltaZ;
-        // Z рассчитывается по простой тригонометрической формуле. Но зависит рассчет от аспектов прямоугольника и экрана
-        if ((TRMarker.x - BLMarker.x)/(TRMarker.y - BLMarker.y) > screenAspect) // прямоугольник упирается боками
+        // Z is calculated using trigonometry equations. Calculation depends on aspect of camera and rectangle
+        if ((TRMarker.x - BLMarker.x)/(TRMarker.y - BLMarker.y) > screenAspect) // rectangle touches left and right sides of view
         {
             float camFOVHor = Camera.VerticalToHorizontalFieldOfView(cameraCompon.fieldOfView, screenAspect);
             deltaZ = (TRMarker.x - BLMarker.x) * 0.5f / (Mathf.Tan(Mathf.Deg2Rad * camFOVHor * 0.5f));
         }
-        else // прямоугольник упирается верхом и низом
+        else // rectangle touches top and bottom sides of view
         {
             float camFOVVert = cameraCompon.fieldOfView;
             deltaZ = (TRMarker.y - BLMarker.y) * 0.5f / (Mathf.Tan(Mathf.Deg2Rad * camFOVVert * 0.5f));
